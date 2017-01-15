@@ -29,8 +29,9 @@ def convert_between_temperature_units(degree, unit_degrees, unit_result)
 end
 
 def melting_point_of_substance(substance, unit_degrees)
-  convert_between_temperature_units(MELTING_POINT[substance].to_i, 'C', unit_degrees)
+  convert_between_temperature_units(MELTING_POINT[substance], 'C', unit_degrees)
 end
+
 def boiling_point_of_substance(substance, unit_degrees)
-  convert_between_temperature_units(BOILING_POINT[substance].to_i, 'C', unit_degrees)
+  convert_between_temperature_units(BOILING_POINT[substance], 'C', unit_degrees)
 end
