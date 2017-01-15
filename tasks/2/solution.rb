@@ -7,4 +7,20 @@ class Hash
     	
     value.fetch_deep(nested_key_path) if value
   end
+
+  def reshape(shape)
+    shape.keys.map do |key|
+    	if shape[key].class != Hash
+    	  [key, fetch_deep(shape[key])]
+    	else
+    	  [key, reshape(shape[key])]
+    	end
+    end.to_h
+  end
+end
+
+class Array
+  def reshape(shape)
+  	map! { |x| x.reshape(shape)}
+  end
 end
