@@ -1,12 +1,10 @@
 class Hash
   def fetch_deep(input)
-    hash = {}
-    self.each do |key, value|
-      hash[key] = value
-    end.to_h
-+
-    new_hash = hash.values.to_s.gsub(/[\[\]\"\\]/, '')
-    return nil if new_hash.include?(input)
-    new_hash
+  	key, nested_key_path = input.split('.', 2)
+    value = self[key.to_sym] || self[key.to_s]
+
+    return value unless nested_key_path
+    	
+    value.fetch_deep(nested_key_path) if value
   end
 end
