@@ -111,6 +111,13 @@ RSpec.describe Version do
         third = Version.new('3.4.0')
         expect((Version::Range.new(first, second).include? third)).to eq true
       end
+	  it 'checks if a range includes a version' do
+        range = Version::Range.new(Version.new('1'), Version.new('2'))
+        expect(range).to include(Version.new('1.5.4.3.2.3.4.5.1.0'))
+        expect(range).to include('1.2.3.4.1')
+        expect(range).to_not include('0.9.9.9.9.9.9.9')
+        expect(range).to_not include(Version.new('2.0.0.1'))
+      end
     end
     describe 'Range#to_a' do
       it 'can return correctly all numbers between 1.1.0 and 1.2.2' do
