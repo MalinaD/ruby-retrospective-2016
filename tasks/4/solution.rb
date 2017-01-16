@@ -153,6 +153,18 @@ RSpec.describe Version do
         ]
         expect(Version::Range.new(first, second).to_a).to eq output
       end
+	  it 'works with 3 components only' do
+        range = Version::Range.new(Version.new('1.1'), Version.new('1.2'))
+        expect(range.to_a).to eq [
+          '1.1', '1.1.1', '1.1.2',
+          '1.1.3', '1.1.4', '1.1.5',
+          '1.1.6', '1.1.7', '1.1.8', '1.1.9'
+        ]
+      end
+      it "doesn't include first version if it is the same like the last one" do
+        range = Version::Range.new(Version.new('0'), Version.new('0'))
+        expect(range.to_a).to eq []
+      end
 	  it "can works with strings" do
         range = Version::Range.new('0', '0.0.9')
         expect(range.to_a).to eq [
