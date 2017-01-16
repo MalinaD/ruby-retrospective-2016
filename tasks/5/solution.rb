@@ -1,42 +1,17 @@
-class DataStore
-  attr_accessor :storage, :id_counter
-  
-  def initialize
-    @id_counter = 1
-  end
-  
-  def create(record)
-    id = record[:id]
-    add(record) if id_available? id 
-  end
-  
-  def update(id, **attributes)
-    founded_records = find(id: id)
-    raise ArgumentError, "No record with id: #{id} is found" if found_records.empty?
-    
-    record = founded_records[0]
-    attributes.each { |key, value| record[key] = value }
-  end
-  
-  private
-  
-  def id_available?(id)
-    !(records.map { |record| record[:id] }.include? id)
-  end
-end
+class HashStore
+  attr_reader :storage
 
-class HashStore < DataStore
   def initialize
     @storage = {}
-    super
+    @id_counter = 0
   end
 
   def next_id
     @id_counter += 1
   end
 
-  def add(record)
-    storage[record[:id]] = record
+  def create(record)
+    @storage[record[:id]] = record
   end
 
   def find(query)
@@ -48,21 +23,28 @@ class HashStore < DataStore
   def delete(query)
     find(query).each { |record| @storage.delete(record[:id]) }
   end
-  
-  private
-  def records
-    @storage.values
+
+  def update(id, record)
+    return unless @storage.key? id
+
+    @storage[id] = record
   end
 end
 
-class ArrayStore < DataStore
+class ArrayStore
+  attr_reader :storage
+
   def initialize
     @storage = []
-    super
+    @id_counter = 0
   end
 
   def next_id
     @id_counter += 1
+  end
+
+  def create(record)
+    @storage << record
   end
 
   def find(query)
@@ -73,17 +55,17 @@ class ArrayStore < DataStore
     @storage.reject! { |record| match_record? query, record }
   end
 
+  def update(id, record)
+    index = @storage.find_index { |record| record[:id] == id }
+    return unless index
+
+    @storage[index] = record
+  end
+
   private
 
   def match_record?(query, record)
     query.all? { |key, value| record[key] == value }
-  end
-
-  def records
-    @storage
-  end
-  def add(record)
-    storage.push(record)
   end
 end
 
