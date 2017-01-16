@@ -1,17 +1,28 @@
-class HashStore
-  attr_reader :storage
-
+class DataStore
+  attr_accessor :storage, :id_counter
+  
+  def initialize
+    @id_counter = 1
+  end
+  
+  def create(record)
+    id = record[:id]
+    add(record) if id_available? id 
+  end
+  
+end
+class HashStore < DataStore
   def initialize
     @storage = {}
-    @id_counter = 0
+    super
   end
 
   def next_id
     @id_counter += 1
   end
 
-  def create(record)
-    @storage[record[:id]] = record
+  def add(record)
+    storage[record[:id]] = record
   end
 
   def find(query)
@@ -29,22 +40,21 @@ class HashStore
 
     @storage[id] = record
   end
+  
+  private
+  def records
+    @storage.values
+  end
 end
 
-class ArrayStore
-  attr_reader :storage
-
+class ArrayStore < DataStore
   def initialize
     @storage = []
-    @id_counter = 0
+    super
   end
 
   def next_id
     @id_counter += 1
-  end
-
-  def create(record)
-    @storage << record
   end
 
   def find(query)
@@ -66,6 +76,13 @@ class ArrayStore
 
   def match_record?(query, record)
     query.all? { |key, value| record[key] == value }
+  end
+
+  def records
+    @storage
+  end
+  def add(record)
+    storage.push(record)
   end
 end
 
