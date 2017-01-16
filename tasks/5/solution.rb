@@ -10,7 +10,21 @@ class DataStore
     add(record) if id_available? id 
   end
   
+  def update(id, **attributes)
+    founded_records = find(id: id)
+    raise ArgumentError, "No record with id: #{id} is found" if found_records.empty?
+    
+    record = founded_records[0]
+    attributes.each { |key, value| record[key] = value }
+  end
+  
+  private
+  
+  def id_available?(id)
+    !(records.map { |record| record[:id] }.include? id)
+  end
 end
+
 class HashStore < DataStore
   def initialize
     @storage = {}
@@ -33,12 +47,6 @@ class HashStore < DataStore
 
   def delete(query)
     find(query).each { |record| @storage.delete(record[:id]) }
-  end
-
-  def update(id, record)
-    return unless @storage.key? id
-
-    @storage[id] = record
   end
   
   private
@@ -63,13 +71,6 @@ class ArrayStore < DataStore
 
   def delete(query)
     @storage.reject! { |record| match_record? query, record }
-  end
-
-  def update(id, record)
-    index = @storage.find_index { |record| record[:id] == id }
-    return unless index
-
-    @storage[index] = record
   end
 
   private
