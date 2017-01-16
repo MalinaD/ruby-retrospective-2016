@@ -1,8 +1,17 @@
 RSpec.describe Version do
+  describe '#initialize' do
+    it 'does not raise error with empty string' do
+      expect { Version.new '' }.to_not raise_error
+    end
+  end
   describe '#version' do
     it 'can look for valid versions' do
       input = '1.2.1'
       expect(Version.new(input).components.to_s).to eq '[1, 2, 1]'
+    end
+	it 'creates valid versions without arguments' do
+      expect { Version.new }.not_to raise_error
+      expect { Version.new '' }.not_to raise_error
     end
     it 'can look for valid versions with zeros' do
       input = '1.2.0'
@@ -18,23 +27,40 @@ RSpec.describe Version do
     end
   end
   describe '#comparing' do
-    it 'can compare correctly using <' do
+    it 'can compare correctly using #<' do
       expect(Version.new('1.2.3') < Version.new('1.3.1')).to eq true
     end
-    it 'can compare correctly using <' do
+    it 'can compare correctly using #<' do
       expect(Version.new('4.2.3') < Version.new('3.3.1')).to eq false
     end
-    it 'can compare correctly using >' do
+    it 'can compare correctly using #>' do
       expect(Version.new('1.2.3') > Version.new('1.2.0')).to eq true
     end
-    it 'can compare correctly using >' do
+    it 'can compare correctly using #>' do
       expect(Version.new('7.2.0') > Version.new('8.2.0')).to eq false
     end
-    it 'can compare correctly using ==' do
+    it 'can compare correctly using #==' do
       expect(Version.new('1.2.3') == Version.new('1.0.3')).to eq false
     end
-    it 'can compare correctly using >=' do
+    it 'can compare correctly using #>=' do
       expect(Version.new('1.2.3') >= Version.new('1.0.3')).to eq true
+    end
+    it 'can compare correctly using #<=' do
+      version1 = Version.new('1.3.1')
+      version2 = Version.new('1.3.1.0')
+      version3 = Version.new('1.3.1.1.2')
+	  
+      expect(version1 <= version2).to be true
+      expect(version3 <= version1).to be false
+    end
+	it "can compare correctly using #<=>" do
+      version1 = Version.new('1.2.3.0.1')
+      version2 = Version.new('1.3.1')
+      version3 = Version.new('1.3.1.0')
+      version4 = Version.new('1.3.1.1.2')
+      expect( version1 <=> version2 ).to eq -1
+      expect( version2 <=> version3 ).to eq 0
+      expect( version4 <=> version2 ).to eq 1
     end
   end
   describe '#converting' do
@@ -119,6 +145,14 @@ RSpec.describe Version do
           '1.1.7', '1.1.8', '1.1.9'
         ]
         expect(Version::Range.new(first, second).to_a).to eq output
+      end
+	  it "can works with strings" do
+        range = Version::Range.new('0', '0.0.9')
+        expect(range.to_a).to eq [
+          '0', '0.0.1', '0.0.2',
+          '0.0.3', '0.0.4', '0.0.5',
+          '0.0.6', '0.0.7', '0.0.8'
+        ]
       end
     end
   end
